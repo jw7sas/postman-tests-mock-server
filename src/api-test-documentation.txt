@@ -1,0 +1,48 @@
+ExampleMockServer
+
+	base_api: https://asperosGeek/v1/api
+
+Solicitud de Token AS Geek:
+
+REQUEST:
+	operation: /Token
+	method: POST
+	Content-type: application/json
+	Authorization: Basic dXNlcllvdXR1YmU6cGFzd29yZFlvdXR1YmU=
+	Body: 
+		{
+		    "operation": "getToken"
+		}
+
+RESPONSE:
+	{
+		"as_token": "617cf7a097d2435d8250b948954817b7",
+		"as_expires_in": 210000,
+		"as_type_token": "Bearer",
+		"as_refresh_token": "70827304532340e19d95863556f23675"
+	}
+
+Solicitud de Productos AS Geek:
+
+REQUEST:
+	operation: /product
+	method: GET
+	Content-type: application/json
+	Authorization: Bearer 617cf7a097d2435d8250b948954817b7
+
+RESPONSE:	
+{	
+	"info": {
+		"count": 5,
+		"pages": 2,
+		"next": "https://asperosGeek/v1/api/product/?page=2", 
+		"prev": null
+	},
+	"results": [
+		{"id": 1, "name": "lavadora", "precio": 1700000},
+		{"id": 2, "name": "nevera", "precio": 2500000},
+		{"id": 3, "name": "estufa", "precio": 1400000},
+		{"id": 4, "name": "televisor", "precio": 1200000},
+		{"id": 5, "name": "computador", "precio": 3500000}
+	]
+}

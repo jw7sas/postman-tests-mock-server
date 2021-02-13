@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>MockServer - test</title>
+	 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+</head>
+<body>
+	<div class="container">
+		<section class="section py-3">
+			<h1>Ejemplo de petición POST</h1> <br>
+			<button class="button is-danger" id="btnGetProducts">Obtener productos</button>
+			<hr>
+			<div class="card py-5 px-5" style="height: 110px">
+				<h2>Tu token es: </h2> <br>
+				<div id="text_token"></div>
+			</div>
+			<div class="card py-5 px-5" style="height: 250px">
+				<h2>Tus productos son: </h2> <br>
+				<div id="text_products"></div>
+			</div>
+		</section>
+	</div>
+	<script>
+		// CONSTANTES 
+		const baseApi = "https://asperosGeek/v1/api";
+		const basicAuthApi = "Basic dXNlcllvdXR1YmU6cGFzd29yZFlvdXR1YmU=";
+		const textToken = document.querySelector("#text_token");
+
+		const $buttonProducts = document.querySelector("#btnGetProducts");
+
+		/**
+			Método para obtener datos con fetch de Javascript.
+		*/
+		const fetchData = async (url, method, data, auth=null) => {
+			let jsonFetch = {
+		    	method: method,
+		    	headers: {
+      				"Content-Type": "application/json",
+      				"Authorization": auth == null ? basicAuthApi : auth
+      			}
+		    }
+		    if (data) 
+		    	jsonFetch = {...jsonFetch, body: JSON.stringify(data)}
+
+		    const response = await fetch(url, jsonFetch)
+		    if(!response.ok){
+		        throw new Error("Error " + url)
+		    }
+		    return await response.json()
+		}
+
+		/**
+			Método para solicititar productos.
+		*/
+		$buttonProducts.addEventListener("click", async ()=> {
+			textToken.innerHTML= "";
+			try{
+				const data = {
+				    "operation": "getToken"
+				};
+				const url_request = baseApi + "/Token";
+	    		const response = await fetchData(url_request, "POST", data);
+	    		textToken.innerHTML = response.as_token;
+	    		console.log("Token", response);
+
+	    		if(response){
+	    			const products = await fetchData(
+	    				baseApi + "/product", 
+	    				"GET", 
+	    				null, 
+	    				"Bearer " + response.as_token
+	    			);
+	    			console.log("Productos", products);
+	    			graphProducts(products);
+
+	    		}
+			}catch(e){
+				console.log("Error", e);
+			}
+		});
+
+		/**
+			Método para gráficar productos.
+		*/
+		async function  graphProducts(products){
+			const $products = document.querySelector("#text_products");
+			$products.innerHTML = "";
+			if(products){
+				const ul = document.createElement("ul");
+				for(index in products.results){
+					const product = products.results[index];
+					const a = document.createElement("a");
+					a.href = "#";
+					const li = document.createElement("li");
+					li.textContent = `${product.name} - ${product.precio}`;
+					a.append(li);
+					ul.appendChild(a);
+				}
+				$products.append(ul);
+			}
+		}
+
+
+	</script>
+</body>
+</html>
